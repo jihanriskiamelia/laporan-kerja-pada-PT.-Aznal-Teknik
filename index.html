@@ -1,0 +1,757 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "/components/ui/card";
+import { Button } from "/components/ui/button";
+import { Input } from "/components/ui/input";
+import { Label } from "/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar, Clock, User, Building, FileText, Camera, Video, LogOut, Home, Upload, Download, Factory, Contact, BarChart3, List, MapPin } from "lucide-react";
+
+interface Report {
+  id: string;
+  teknisi: string;
+  perusahaan: string;
+  pabrik: string;
+  pic: string;
+  lokasi: string;
+  tanggal: string;
+  proyek: string;
+  absensi: string;
+  laporanKerja: string;
+  fotoBefore: string;
+  fotoProses: string;
+  fotoAfter: string;
+  videoCommissioning: string;
+  createdAt: Date;
+}
+
+const App: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentView, setCurrentView] = useState('login');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [reports, setReports] = useState<Report[]>([
+    {
+      id: '1',
+      teknisi: 'Ahmad Rizki',
+      perusahaan: 'PT Sinar Mas',
+      pabrik: 'Pabrik Pulp Tangerang',
+      pic: 'Budi Santoso - Manager Produksi',
+      lokasi: 'Jl. Industri Raya No. 123, Tangerang',
+      tanggal: '2024-03-15',
+      proyek: 'Pemasangan Compressor Utama',
+      absensi: '08:00-17:00 - Pemasangan sistem compressor',
+      laporanKerja: 'Melakukan pemasangan compressor tipe Atlas Copco GA75, instalasi sistem pipa udara bertekanan, dan commissioning sistem. Pressure test dilakukan pada 8 bar dengan hasil memuaskan.',
+      fotoBefore: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/efd08108-dc81-42d9-bb86-3c48e0339105.png',
+      fotoProses: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/19b6a477-892c-4cb0-8bc8-5ad6412090cf.png',
+      fotoAfter: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d9407784-f455-4c2f-a002-e0223f617087.png',
+      videoCommissioning: '',
+      createdAt: new Date('2024-03-15')
+    },
+    {
+      id: '2',
+      teknisi: 'Surya Pratama',
+      perusahaan: 'PT Indofood',
+      pabrik: 'Pabrik Pengolahan Makanan',
+      pic: 'Diana Wijaya - Supervisor Maintenance',
+      lokasi: 'Kawasan Industri Cikarang, Bekasi',
+      tanggal: '2024-03-10',
+      proyek: 'Maintenance Air Dryer System',
+      absensi: '07:30-16:30 - Maintenance rutin sistem dryer',
+      laporanKerja: 'Melakukan maintenance berkala pada sistem air dryer, pembersihan filter, penggantian desiccant, dan kalibrasi tekanan. Sistem berjalan optimal setelah maintenance.',
+      fotoBefore: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/efd08108-dc81-42d9-bb86-3c48e0339105.png',
+      fotoProses: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/19b6a477-892c-4cb0-8bc8-5ad6412090cf.png',
+      fotoAfter: 'https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d9407784-f455-4c2f-a002-e0223f617087.png',
+      videoCommissioning: '',
+      createdAt: new Date('2024-03-10')
+    }
+  ]);
+  
+  const [currentReport, setCurrentReport] = useState<Partial<Report>>({
+    teknisi: '',
+    perusahaan: '',
+    pabrik: '',
+    pic: '',
+    lokasi: '',
+    tanggal: '',
+    proyek: '',
+    absensi: '',
+    laporanKerja: ''
+  });
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'password123') {
+      setIsLoggedIn(true);
+      setCurrentView('main-dashboard');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentView('login');
+    setUsername('');
+    setPassword('');
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentReport(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCurrentReport(prev => ({
+          ...prev,
+          [type]: event.target?.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmitReport = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newReport: Report = {
+      id: Date.now().toString(),
+      teknisi: currentReport.teknisi || '',
+      perusahaan: currentReport.perusahaan || '',
+      pabrik: currentReport.pabrik || '',
+      pic: currentReport.pic || '',
+      lokasi: currentReport.lokasi || '',
+      tanggal: currentReport.tanggal || '',
+      proyek: currentReport.proyek || '',
+      absensi: currentReport.absensi || '',
+      laporanKerja: currentReport.laporanKerja || '',
+      fotoBefore: currentReport.fotoBefore || '',
+      fotoProses: currentReport.fotoProses || '',
+      fotoAfter: currentReport.fotoAfter || '',
+      videoCommissioning: currentReport.videoCommissioning || '',
+      createdAt: new Date()
+    };
+    
+    setReports(prev => [...prev, newReport]);
+    setCurrentReport({
+      teknisi: '',
+      perusahaan: '',
+      pabrik: '',
+      pic: '',
+      lokasi: '',
+      tanggal: '',
+      proyek: '',
+      absensi: '',
+      laporanKerja: ''
+    });
+    setCurrentView('reports-dashboard');
+  };
+
+  const renderLogin = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-gray-900 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4">
+            <Building className="h-12 w-12 text-blue-600 mx-auto" />
+          </div>
+          <CardTitle className="text-2xl font-bold">PT Aznal Teknik</CardTitle>
+          <CardDescription>Sistem Laporan Kerja Teknisi</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Masukkan username"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Masukkan password"
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+              Login
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-sm text-gray-500">Gunakan username: admin, password: password123</p>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+
+  const renderMainDashboard = () => (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Building className="h-8 w-8 text-blue-600" />
+              <h1 className="text-xl font-bold text-gray-900">PT Aznal Teknik - Dashboard Utama</h1>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Total Proyek</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{reports.length}</div>
+              <p className="text-blue-100 text-sm">Proyek Aktif</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Jumlah Teknisi</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">8</div>
+              <p className="text-green-100 text-sm">Teknisi Aktif</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Pabrik Dilayani</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">12</div>
+              <p className="text-orange-100 text-sm">Klien Aktif</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Completion Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">98%</div>
+              <p className="text-purple-100 text-sm">Rate Penyelesaian</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Menu Utama</CardTitle>
+              <CardDescription>Akses fitur sistem</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4">
+              <Button 
+                onClick={() => setCurrentView('reports-dashboard')} 
+                className="h-20 flex flex-col items-center justify-center bg-blue-600 hover:bg-blue-700"
+              >
+                <FileText className="h-8 w-8 mb-2" />
+                Laporan Kerja
+              </Button>
+              <Button 
+                onClick={() => setCurrentView('upload')} 
+                className="h-20 flex flex-col items-center justify-center bg-green-600 hover:bg-green-700"
+              >
+                <Upload className="h-8 w-8 mb-2" />
+                Upload Laporan
+              </Button>
+              <Button 
+                className="h-20 flex flex-col items-center justify-center bg-orange-600 hover:bg-orange-700"
+              >
+                <Factory className="h-8 w-8 mb-2" />
+                Data Pabrik
+              </Button>
+              <Button 
+                className="h-20 flex flex-col items-center justify-center bg-purple-600 hover:bg-purple-700"
+              >
+                <BarChart3 className="h-8 w-8 mb-2" />
+                Analisis
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Proyek Terbaru</CardTitle>
+              <CardDescription>5 laporan terbaru</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {reports.slice(0, 5).map((report) => (
+                  <div key={report.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">{report.proyek}</p>
+                      <p className="text-xs text-gray-500">{report.pabrik}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">{report.tanggal}</p>
+                      <p className="text-xs text-gray-400">{report.teknisi}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full" onClick={() => setCurrentView('reports-dashboard')}>
+                Lihat Semua Laporan
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+
+  const renderReportsDashboard = () => (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={() => setCurrentView('main-dashboard')}>
+                <Home className="h-5 w-5 mr-2" />
+                Dashboard Utama
+              </Button>
+              <h1 className="text-xl font-bold text-gray-900">Dashboard Laporan Kerja</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Button onClick={() => setCurrentView('upload')} className="bg-blue-600 hover:bg-blue-700">
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Laporan
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Daftar Laporan Kerja</h2>
+          {reports.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">Belum ada laporan kerja. Silakan upload laporan pertama.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 gap-6">
+              {reports.map((report) => (
+                <Card key={report.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg">{report.proyek}</CardTitle>
+                        <CardDescription>{report.perusahaan} - {report.pabrik}</CardDescription>
+                      </div>
+                      <span className="text-sm text-gray-500">{report.tanggal}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <User className="h-4 w-4 mr-2" />
+                          <span className="font-medium">Teknisi:</span> {report.teknisi}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Contact className="h-4 w-4 mr-2" />
+                          <span className="font-medium">PIC:</span> {report.pic}
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          <span className="font-medium">Lokasi:</span> {report.lokasi}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Clock className="h-4 w-4 mr-2" />
+                          <span className="font-medium">Absensi:</span> {report.absensi.split(' - ')[0]}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          <span className="font-medium">Created:</span> {new Date(report.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">{report.laporanKerja}</p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <Button variant="outline" size="sm" onClick={() => {
+                      setCurrentReport(report);
+                      setCurrentView('detail');
+                    }}>
+                      Lihat Detail
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-1" />
+                      Download
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+
+  const renderUploadForm = () => (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={() => setCurrentView('main-dashboard')}>
+                <Home className="h-5 w-5 mr-2" />
+                Dashboard Utama
+              </Button>
+              <h1 className="text-xl font-bold text-gray-900">Upload Laporan Kerja</h1>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Form Laporan Pekerjaan</CardTitle>
+            <CardDescription>Isi data lengkap laporan kerja proyek compressor, air dryer, dan pipa</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmitReport} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="teknisi">Nama Teknisi</Label>
+                  <Input
+                    id="teknisi"
+                    name="teknisi"
+                    value={currentReport.teknisi}
+                    onChange={handleInputChange}
+                    placeholder="Nama lengkap teknisi"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="perusahaan">Nama Perusahaan</Label>
+                  <Input
+                    id="perusahaan"
+                    name="perusahaan"
+                    value={currentReport.perusahaan}
+                    onChange={handleInputChange}
+                    placeholder="Nama perusahaan klien"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="pabrik">Nama Pabrik</Label>
+                  <Input
+                    id="pabrik"
+                    name="pabrik"
+                    value={currentReport.pabrik}
+                    onChange={handleInputChange}
+                    placeholder="Nama pabrik/lokasi kerja"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="pic">Nama PIC Proyek</Label>
+                  <Input
+                    id="pic"
+                    name="pic"
+                    value={currentReport.pic}
+                    onChange={handleInputChange}
+                    placeholder="Nama PIC yang memberikan proyek"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lokasi">Lokasi Pabrik</Label>
+                <Input
+                  id="lokasi"
+                  name="lokasi"
+                  value={currentReport.lokasi}
+                  onChange={handleInputChange}
+                  placeholder="Alamat lengkap pabrik"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="tanggal">Tanggal Pengerjaan</Label>
+                  <Input
+                    id="tanggal"
+                    name="tanggal"
+                    type="date"
+                    value={currentReport.tanggal}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="proyek">Nama Proyek</Label>
+                  <Input
+                    id="proyek"
+                    name="proyek"
+                    value={currentReport.proyek}
+                    onChange={handleInputChange}
+                    placeholder="Nama proyek/lokasi"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="absensi">Data Absensi</Label>
+                <Textarea
+                  id="absensi"
+                  name="absensi"
+                  value={currentReport.absensi}
+                  onChange={handleInputChange}
+                  placeholder="Data kehadiran dan waktu kerja (contoh: 08:00-17:00 - Pemasangan compressor)"
+                  rows={2}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="laporanKerja">Laporan Kerja</Label>
+                <Textarea
+                  id="laporanKerja"
+                  name="laporanKerja"
+                  value={currentReport.laporanKerja}
+                  onChange={handleInputChange}
+                  placeholder="Detail pekerjaan yang dilakukan: pemasangan compressor, air dryer, pipa, maintenance, dll."
+                  rows={4}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="fotoBefore">
+                    <Camera className="h-4 w-4 inline mr-2" />
+                    Foto Sebelum Pemasangan
+                  </Label>
+                  <Input
+                    id="fotoBefore"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'fotoBefore')}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fotoProses">
+                    <Camera className="h-4 w-4 inline mr-2" />
+                    Foto Proses Pemasangan
+                  </Label>
+                  <Input
+                    id="fotoProses"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'fotoProses')}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fotoAfter">
+                    <Camera className="h-4 w-4 inline mr-2" />
+                    Foto Setelah Pemasangan
+                  </Label>
+                  <Input
+                    id="fotoAfter"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, 'fotoAfter')}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="videoCommissioning">
+                  <Video className="h-4 w-4 inline mr-2" />
+                  Video Commissioning
+                </Label>
+                <Input
+                  id="videoCommissioning"
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => handleFileUpload(e, 'videoCommissioning')}
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <Button type="button" variant="outline" onClick={() => setCurrentView('main-dashboard')}>
+                  Batal
+                </Button>
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Laporan
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+
+  const renderDetailView = () => (
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={() => setCurrentView('reports-dashboard')}>
+                <Home className="h-5 w-5 mr-2" />
+                Kembali ke Laporan
+              </Button>
+              <h1 className="text-xl font-bold text-gray-900">Detail Laporan Kerja</h1>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Detail Laporan Pekerjaan</CardTitle>
+            <CardDescription>Informasi lengkap laporan proyek</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold mb-2">Informasi Umum</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Teknisi:</span> {currentReport.teknisi}</p>
+                  <p><span className="font-medium">Perusahaan:</span> {currentReport.perusahaan}</p>
+                  <p><span className="font-medium">Pabrik:</span> {currentReport.pabrik}</p>
+                  <p><span className="font-medium">PIC Proyek:</span> {currentReport.pic}</p>
+                  <p><span className="font-medium">Lokasi:</span> {currentReport.lokasi}</p>
+                  <p><span className="font-medium">Tanggal:</span> {currentReport.tanggal}</p>
+                  <p><span className="font-medium">Proyek:</span> {currentReport.proyek}</p>
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Absensi & Waktu</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Absensi:</span> {currentReport.absensi}</p>
+                  <p><span className="font-medium">Dibuat pada:</span> {currentReport.createdAt && new Date(currentReport.createdAt).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Laporan Kerja</h3>
+              <p className="text-sm bg-gray-50 p-4 rounded-md">
+                {currentReport.laporanKerja}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <h3 className="font-semibold mb-2">Before</h3>
+                <img 
+                  src={currentReport.fotoBefore || "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/efd08108-dc81-42d9-bb86-3c48e0339105.png"} 
+                  alt="Kondisi area sebelum pemasangan compressor dengan ruang kosong dan persiapan infrastruktur" 
+                  className="w-full h-48 object-cover rounded-md"
+                />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">Proses</h3>
+                <img 
+                  src={currentReport.fotoProses || "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/19b6a477-892c-4cb0-8bc8-5ad6412090cf.png"} 
+                  alt="Proses instalasi compressor dengan teknisi sedang bekerja pada unit dan sistem pipa" 
+                  className="w-full h-48 object-cover rounded-md"
+                />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2">After</h3>
+                <img 
+                  src={currentReport.fotoAfter || "https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d9407784-f455-4c2f-a002-e0223f617087.png"} 
+                  alt="Hasil akhir pemasangan compressor dengan unit terpasang rapi dan sistem pipa terorganisir" 
+                  className="w-full h-48 object-cover rounded-md"
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">Video Commissioning</h3>
+              <div className="bg-gray-200 h-48 rounded-md flex items-center justify-center">
+                <Video className="h-12 w-12 text-gray-400" />
+                <span className="ml-2 text-gray-600">Video commissioning akan ditampilkan di sini</span>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button onClick={() => setCurrentView('reports-dashboard')}>
+              Kembali ke Daftar Laporan
+            </Button>
+          </CardFooter>
+        </Card>
+      </main>
+    </div>
+  );
+
+  if (!isLoggedIn) {
+    return renderLogin();
+  }
+
+  switch (currentView) {
+    case 'main-dashboard':
+      return renderMainDashboard();
+    case 'reports-dashboard':
+      return renderReportsDashboard();
+    case 'upload':
+      return renderUploadForm();
+    case 'detail':
+      return renderDetailView();
+    default:
+      return renderMainDashboard();
+  }
+};
+
+export default App;
